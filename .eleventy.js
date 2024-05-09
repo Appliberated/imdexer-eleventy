@@ -4,7 +4,7 @@
  * @author TechAurelian <dev@techaurelian.com> (https://techaurelian.com)
  */
 
-import { addImageShortcode } from "./src/image-shortcode";
+import { addImageShortcode } from "./src/image-shortcode.js";
 
 // /**
 //  * Validates the provided option by throwing an error if it is not defined.
@@ -16,7 +16,7 @@ import { addImageShortcode } from "./src/image-shortcode";
 //   if (!options[name]) throw new Error(`eleventy-mapped-images requires a ${name} option.`);
 // }
 
-module.exports = function (eleventyConfig, options = {}) {
+export default function (eleventyConfig, options = {}) {
   // Validate options
   // validateOption(options, 'imageMaps');
 

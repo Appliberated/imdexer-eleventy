@@ -7,6 +7,7 @@
 import path from 'node:path';
 
 import { PACKAGE_NAME } from './consts.js';
+import { joinPosixPath } from './utils.js';
 
 /**
  * Adds the specified image shortcode to Eleventy.
@@ -31,7 +32,6 @@ export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, baseUr
   // Add the shortcode to Eleventy
   eleventyConfig.addShortcode(shortcodeName, imageShortcode);
 }
-
 
 /**
  * Generates an image tag for the specified image.
@@ -72,7 +72,7 @@ function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
     const height = data.height;
 
     // Correctly join the base URL and the image source
-    const fullSrc = path.posix.join(baseUrl, src);
+    const fullSrc = joinPosixPath(baseUrl, src);
 
     // Return the image tag
     return `<img src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} width="${width}" height="${height}" alt="${alt}" />`;
