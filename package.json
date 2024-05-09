@@ -1,0 +1,9 @@
+{
+  "name": "imdexer-eleventy",
+  "version": "1.0.0",
+  "description": "",
+  "main": ".eleventy.js",
+  "type": "module",
+  "author": "TechAurelian <dev@techaurelian.com> (https://techaurelian.com)",
+  "license": "UNLICENSED"
+}
