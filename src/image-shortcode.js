@@ -14,9 +14,9 @@ import { PACKAGE_NAME } from './consts.js';
  * @param {object} eleventyConfig The Eleventy configuration object.
  * @param {string} shortcodeName The name of the shortcode.
  * @param {object} imdexer The imdexer object containing data for the images.
- * @param {string} rootPath The root path for the images.
+ * @param {string} baseUrl The base URL for the images.
  */
-export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, rootPath) {
+export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, baseUrl) {
 
   /**
    * Returns the content for the image shortcode, which is a HTML image tag with attributes
@@ -25,7 +25,7 @@ export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, rootPa
    * @returns {string} The HTML image tag.
    */
   const imageShortcode = function(args) {
-    return generateImageTag(imdexer, rootPath, args.src, args.class, args.alt);
+    return generateImageTag(imdexer, baseUrl, args.src, args.class, args.alt);
   };
 
   // Add the shortcode to Eleventy
@@ -37,13 +37,13 @@ export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, rootPa
  * Generates an image tag for the specified image.
  * 
  * @param {Object} imdexer The imdexer object containing data for the images.
- * @param {string} rootPath The root path for the images.
+ * @param {string} baseUrl The base URL for the images.
  * @param {string} src The source of the image.
  * @param {string} classAttr The class attribute for the image.
  * @param {string} alt The alt attribute for the image.
  * @returns {string} The HTML image tag.
  */
-function generateImageTag(imdexer, rootPath, src, classAttr, alt) {
+function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
 
   if (!imdexer) {
     throw new Error(`${PACKAGE_NAME} requires an imdexer object.`);
@@ -71,8 +71,8 @@ function generateImageTag(imdexer, rootPath, src, classAttr, alt) {
     const width = data.width;
     const height = data.height;
 
-    // Correctly join the root path and the image source
-    const fullSrc = path.posix.join(rootPath, src);
+    // Correctly join the base URL and the image source
+    const fullSrc = path.posix.join(baseUrl, src);
 
     // Return the image tag
     return `<img src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} width="${width}" height="${height}" alt="${alt}" />`;

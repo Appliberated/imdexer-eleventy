@@ -20,15 +20,11 @@ module.exports = function (eleventyConfig, options = {}) {
   // Validate options
   // validateOption(options, 'imageMaps');
 
-  // Add the mimage shortcode
-  // addMimageShortcode(eleventyConfig, options);
-  // addImageShortcode(eleventyConfig, 'mimage', options.imdexer, options.rootPath);
-  
   // The options object can contain one or more shortcodes to add in the shortcodes array
   // Add the shortcodes to Eleventy
   if (options.shortcodes) {
     for (const shortcode of options.shortcodes) {
-      addImageShortcode(eleventyConfig, shortcode.name, shortcode.imdexer, shortcode.rootPath);
+      addImageShortcode(eleventyConfig, shortcode.name, shortcode.imdexer, shortcode.baseUrl);
     }
   }
 };
