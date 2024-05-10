@@ -4,8 +4,6 @@
  * @author TechAurelian <dev@techaurelian.com> (https://techaurelian.com)
  */
 
-import path from 'node:path';
-
 import { PACKAGE_NAME } from './consts.js';
 import { joinPosixPath } from './utils.js';
 
@@ -17,7 +15,7 @@ import { joinPosixPath } from './utils.js';
  * @param {object} imdexer The imdexer object containing data for the images.
  * @param {string} baseUrl The base URL for the images.
  */
-export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, baseUrl) {
+export function addImageShortcode(eleventyConfig, shortcodeName, zones) {
 
   /**
    * Returns the content for the image shortcode, which is a HTML image tag with attributes
@@ -25,13 +23,52 @@ export function addImageShortcode(eleventyConfig, shortcodeName, imdexer, baseUr
    * @param {object} args The arguments for the shortcode.
    * @returns {string} The HTML image tag.
    */
-  const imageShortcode = function(args) {
-    return generateImageTag(imdexer, baseUrl, args.src, args.class, args.alt);
+  const imageShortcode = function (args) {
+    
+    // Get the image data based on the optional prefix and available zones
+    const data = getImageData(args.src, zones);
+
+    // Generate and return the HTML image tag
+    return generateImageTag(data.imdexer, data.baseUrl, data.imageSrc, args.class, args.alt);
   };
 
   // Add the shortcode to Eleventy
   eleventyConfig.addShortcode(shortcodeName, imageShortcode);
 }
+
+/**
+ * Gets the image data for the specified image source based on the available zones.
+ * 
+ * @param {string} src The source of the image.
+ * @param {Array} zones The array of image zones.
+ * @returns {Object} The image data object containing the image source, imdexer, and base URL.
+ */
+function getImageData(src, zones) {
+
+  // If there is only one entry in the zones array, return its data
+  if (zones.length === 1) {
+    return {
+      imageSrc: src, // There should be no prefix to remove
+      imdexer: zones[0].imdexer,
+      baseUrl: zones[0].baseUrl,
+    }
+  }
+
+  // Otherwise, find the zone that matches the image source based on the prefix, and return its data
+  for (const zone of zones) {
+    if (src.startsWith(zone.prefix)) {
+      return {
+        imageSrc: src.slice(zone.prefix.length), // Remove the prefix from the image source
+        imdexer: zone.imdexer,
+        baseUrl: zone.baseUrl,
+      }
+    }
+  }
+
+  // If no zone matches the image source, throw an error
+  throw new Error(`No zone found for image: ${src}`);
+}
+
 
 /**
  * Generates an image tag for the specified image.

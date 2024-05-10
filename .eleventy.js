@@ -20,11 +20,15 @@ export default function (eleventyConfig, options = {}) {
   // Validate options
   // validateOption(options, 'imageMaps');
 
+  if (options.imgShortcode) {
+    addImageShortcode(eleventyConfig, options.imgShortcode, options.zones);
+  }
+
   // The options object can contain one or more shortcodes to add in the shortcodes array
   // Add the shortcodes to Eleventy
-  if (options.shortcodes) {
-    for (const shortcode of options.shortcodes) {
-      addImageShortcode(eleventyConfig, shortcode.name, shortcode.imdexer, shortcode.baseUrl);
-    }
-  }
+  // if (options.shortcodes) {
+  //   for (const shortcode of options.shortcodes) {
+  //     addImageShortcode(eleventyConfig, shortcode.name, shortcode.imdexer, shortcode.baseUrl);
+  //   }
+  // }
 };
