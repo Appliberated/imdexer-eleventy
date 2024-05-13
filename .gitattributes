@@ -1,1 +1,2 @@
-* text=auto eol=lf
+# Disable automatic line ending conversion for all file types
+* -text
