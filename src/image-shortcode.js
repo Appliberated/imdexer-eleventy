@@ -24,12 +24,13 @@ export function addImageShortcode(eleventyConfig, shortcodeName, zones) {
    * @returns {string} The HTML image tag.
    */
   const imageShortcode = function (args) {
-    
+
     // Get the image data based on the optional prefix and available zones
     const data = getImageData(args.src, zones);
 
     // Generate and return the HTML image tag
-    return generateImageTag(data.imdexer, data.baseUrl, data.imageSrc, args.class, args.alt);
+    // return generateImageTag(data.imdexer, data.baseUrl, data.imageSrc, args.class, args.alt);
+    return generateImageTag({ alt: args.alt, baseUrl: data.baseUrl, classAttr: args.class, imdexer: data.imdexer, lazy: args.lazy, sizes: args.sizes, src: data.imageSrc, defaultImage: args.defaultImage });
   };
 
   // Add the shortcode to Eleventy
@@ -69,7 +70,6 @@ function getImageData(src, zones) {
   throw new Error(`No zone found for image: ${src}`);
 }
 
-
 /**
  * Generates an image tag for the specified image.
  * 
@@ -81,7 +81,8 @@ function getImageData(src, zones) {
  * @returns {string} The HTML image tag.
  */
 // function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
-function generateImageTag(imdexer, baseUrl, src, classAttr, alt, srcImage, lazy = false, sizes='auto') {
+// function generateImageTag(imdexer, baseUrl, src, classAttr, alt, srcImage, lazy = false, sizes='auto') {
+function generateImageTag({ alt, baseUrl, classAttr, defaultImage, imdexer, lazy = false, sizes = 'auto', src } = {}) {
 
   if (!imdexer) {
     throw new Error(`${PACKAGE_NAME} requires an imdexer object.`);
@@ -112,53 +113,33 @@ function generateImageTag(imdexer, baseUrl, src, classAttr, alt, srcImage, lazy 
     // Correctly join the base URL and the image source
     const fullSrc = joinPosixPath(baseUrl, src);
 
-    const loading = lazy ? 'lazy' : 'eager';
+    // Add the lazy loading attribute if specified
+    const loadingAttr = lazy ? 'loading="lazy"' : '';
 
     // Return the image tag
-    return `<img loading="${loading}" width="${width}" height="${height}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
+    return `<img ${loadingAttr} width="${width}" height="${height}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
   }
 
-  // If this is a grouped image, return a img tag with srcset
-  // This is a sample entry in the imdexer object:
-  // "apps/cinemadrape/hero/cinemadrape-hero.webp": {
-  //   "files": {
-  //     "apps/cinemadrape/hero/cinemadrape-hero_w1200.webp": {
-  //       "width": 1200,
-  //       "height": 742
-  //     },
-  //     "apps/cinemadrape/hero/cinemadrape-hero_w200.webp": {
-  //       "width": 200,
-  //       "height": 124
-  //     }
-  //   }
-  // }
+  // If we are here, this is a grouped image, so let's generate a responsive image tag
+
+  // Generate the srcset attribute
   const srcset = Object.keys(data.files).map(file => {
     const fullSrc = joinPosixPath(baseUrl, file);
     return `${fullSrc} ${data.files[file].width}w`;
   }).join(', ');
 
-  // Find the image with the largest width
+  // Get the largest image based on the width
   const largestImage = Object.keys(data.files).reduce((a, b) => data.files[a].width > data.files[b].width ? a : b);
 
-  // If a srcImage is provided, use it as the src attribute; otherwise, use the largest image
-  const fullSrc = srcImage ? joinPosixPath(baseUrl, srcImage) : joinPosixPath(baseUrl, largestImage);
+  // If the defaultImage is provided, use it, otherwise use the largest image for the src attribute
+  const fullSrc = defaultImage ? joinPosixPath(baseUrl, defaultImage) : joinPosixPath(baseUrl, largestImage);
 
-  // Use the width and height of the largest image
   const width = data.files[largestImage].width;
   const height = data.files[largestImage].height;
 
-  // Calculate the loading attribute based on the lazy option and based on the fact that
-  // if the sizes attribute is set to auto, we need lazy loading
-  const loading = lazy || sizes === 'auto' ? 'lazy' : 'eager';
- 
-  // Return the image tag with srcset
-  return `<img loading="${loading}" sizes="${sizes}" width="${width}" height="${height}" srcset="${srcset}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
+  // Add the lazy loading attribute if specified or if the sizes attribute is set to auto
+  const loadingAttr = lazy || sizes === 'auto' ? 'loading="lazy"' : '';
 
-
-  // const srcset = data.files.map(file => {
-  //   const fullSrc = joinPosixPath(baseUrl, file.src);
-  //   return `${fullSrc} ${file.width}w`;
-  // }).join(', ');
-
-
+  // Return the image tag with all the responsive image attributes
+  return `<img ${loadingAttr} sizes="${sizes}" width="${width}" height="${height}" srcset="${srcset}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
 }
