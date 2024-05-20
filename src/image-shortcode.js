@@ -29,7 +29,6 @@ export function addImageShortcode(eleventyConfig, shortcodeName, zones) {
     const data = getImageData(args.src, zones);
 
     // Generate and return the HTML image tag
-    // return generateImageTag(data.imdexer, data.baseUrl, data.imageSrc, args.class, args.alt);
     return generateImageTag({ alt: args.alt, baseUrl: data.baseUrl, classAttr: args.class, imdexer: data.imdexer, lazy: args.lazy, sizes: args.sizes, src: data.imageSrc, defaultImage: args.defaultImage });
   };
 
@@ -73,15 +72,16 @@ function getImageData(src, zones) {
 /**
  * Generates an image tag for the specified image.
  * 
- * @param {Object} imdexer The imdexer object containing data for the images.
- * @param {string} baseUrl The base URL for the images.
- * @param {string} src The source of the image.
- * @param {string} classAttr The class attribute for the image.
  * @param {string} alt The alt attribute for the image.
+ * @param {string} baseUrl The base URL for the images.
+ * @param {string} classAttr The class attribute for the image.
+ * @param {string} defaultImage The default image to use for the src attribute.
+ * @param {Object} imdexer The imdexer object containing data for the images.
+ * @param {boolean} lazy Whether to use lazy loading for the image.
+ * @param {string} sizes The sizes attribute for the image.
+ * @param {string} src The source of the image.
  * @returns {string} The HTML image tag.
  */
-// function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
-// function generateImageTag(imdexer, baseUrl, src, classAttr, alt, srcImage, lazy = false, sizes='auto') {
 function generateImageTag({ alt, baseUrl, classAttr, defaultImage, imdexer, lazy = false, sizes = 'auto', src } = {}) {
 
   if (!imdexer) {
