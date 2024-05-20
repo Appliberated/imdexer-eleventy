@@ -80,7 +80,8 @@ function getImageData(src, zones) {
  * @param {string} alt The alt attribute for the image.
  * @returns {string} The HTML image tag.
  */
-function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
+// function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
+function generateImageTag(imdexer, baseUrl, src, classAttr, alt, srcImage, lazy = false, sizes='auto') {
 
   if (!imdexer) {
     throw new Error(`${PACKAGE_NAME} requires an imdexer object.`);
@@ -111,7 +112,53 @@ function generateImageTag(imdexer, baseUrl, src, classAttr, alt) {
     // Correctly join the base URL and the image source
     const fullSrc = joinPosixPath(baseUrl, src);
 
+    const loading = lazy ? 'lazy' : 'eager';
+
     // Return the image tag
-    return `<img src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} width="${width}" height="${height}" alt="${alt}" />`;
+    return `<img loading="${loading}" width="${width}" height="${height}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
   }
+
+  // If this is a grouped image, return a img tag with srcset
+  // This is a sample entry in the imdexer object:
+  // "apps/cinemadrape/hero/cinemadrape-hero.webp": {
+  //   "files": {
+  //     "apps/cinemadrape/hero/cinemadrape-hero_w1200.webp": {
+  //       "width": 1200,
+  //       "height": 742
+  //     },
+  //     "apps/cinemadrape/hero/cinemadrape-hero_w200.webp": {
+  //       "width": 200,
+  //       "height": 124
+  //     }
+  //   }
+  // }
+  const srcset = Object.keys(data.files).map(file => {
+    const fullSrc = joinPosixPath(baseUrl, file);
+    return `${fullSrc} ${data.files[file].width}w`;
+  }).join(', ');
+
+  // Find the image with the largest width
+  const largestImage = Object.keys(data.files).reduce((a, b) => data.files[a].width > data.files[b].width ? a : b);
+
+  // If a srcImage is provided, use it as the src attribute; otherwise, use the largest image
+  const fullSrc = srcImage ? joinPosixPath(baseUrl, srcImage) : joinPosixPath(baseUrl, largestImage);
+
+  // Use the width and height of the largest image
+  const width = data.files[largestImage].width;
+  const height = data.files[largestImage].height;
+
+  // Calculate the loading attribute based on the lazy option and based on the fact that
+  // if the sizes attribute is set to auto, we need lazy loading
+  const loading = lazy || sizes === 'auto' ? 'lazy' : 'eager';
+ 
+  // Return the image tag with srcset
+  return `<img loading="${loading}" sizes="${sizes}" width="${width}" height="${height}" srcset="${srcset}" src="${fullSrc}" ${classAttr ? `class="${classAttr}"` : ''} alt="${alt}" />`;
+
+
+  // const srcset = data.files.map(file => {
+  //   const fullSrc = joinPosixPath(baseUrl, file.src);
+  //   return `${fullSrc} ${file.width}w`;
+  // }).join(', ');
+
+
 }
